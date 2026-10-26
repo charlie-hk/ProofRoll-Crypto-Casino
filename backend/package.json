@@ -1,0 +1,16 @@
+{
+  "name": "proofroll-backend",
+  "version": "0.1.0",
+  "description": "API-first backend for the provably-fair casino: public fairness verifier, game catalogue, KYC gate. Web and mobile clients share this API.",
+  "license": "MIT",
+  "type": "commonjs",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "node --test"
+  },
+  "dependencies": {
+    "express": "^4.21.0",
+    "ethers": "^6.13.2"
+  }
+}

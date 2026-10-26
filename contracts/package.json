@@ -1,0 +1,14 @@
+{
+  "name": "proofroll-contracts",
+  "version": "0.1.0",
+  "description": "Provably-fair crypto casino contracts: dice, crash, extensible game registry, bankroll custody, compliance gate.",
+  "license": "MIT",
+  "scripts": {
+    "compile": "hardhat compile",
+    "test": "hardhat test"
+  },
+  "devDependencies": {
+    "@nomicfoundation/hardhat-toolbox": "^5.0.0",
+    "hardhat": "^2.22.10"
+  }
+}

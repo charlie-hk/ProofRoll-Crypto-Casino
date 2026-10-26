@@ -1,0 +1,52 @@
+'npx hardhat clean' running (wd: /home/claude/crypto-casino/contracts)
+'npx hardhat clean --global' running (wd: /home/claude/crypto-casino/contracts)
+'npx hardhat compile --force' running (wd: /home/claude/crypto-casino/contracts)
+INFO:Detectors:
+Detector: divide-before-multiply
+ProvablyFair.crashPointBps(bytes32,bytes32,uint256,uint16) (contracts/libraries/ProvablyFair.sol#46-64) performs a multiplication on the result of a division:
+	- point100 = (100 * E - h) / (E - h) (contracts/libraries/ProvablyFair.sol#59)
+	- bps = point100 * 100 (contracts/libraries/ProvablyFair.sol#60)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#divide-before-multiply
+INFO:Detectors:
+Detector: reentrancy-benign
+Reentrancy in GameBase._place(bytes32,uint32,bytes) (contracts/games/GameBase.sol#95-123):
+	External calls:
+	- bankroll.collect{value: wager}() (contracts/games/GameBase.sol#106)
+	- bankroll.lock(potential) (contracts/games/GameBase.sol#107)
+	External calls sending eth:
+	- bankroll.collect{value: wager}() (contracts/games/GameBase.sol#106)
+	State variables written after the call(s):
+	- id = ++ betCount (contracts/games/GameBase.sol#109)
+	- bets[id] = Bet({player:msg.sender,wager:uint128(wager),locked:uint128(potential),winMultBps:winMultBps,nonce:uint64(id),placedAt:uint64(block.timestamp),settled:false,commit:currentCommit,clientSeed:clientSeed,params:params}) (contracts/games/GameBase.sol#110-121)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-3
+INFO:Detectors:
+Detector: reentrancy-events
+Reentrancy in GameBase._place(bytes32,uint32,bytes) (contracts/games/GameBase.sol#95-123):
+	External calls:
+	- bankroll.collect{value: wager}() (contracts/games/GameBase.sol#106)
+	- bankroll.lock(potential) (contracts/games/GameBase.sol#107)
+	External calls sending eth:
+	- bankroll.collect{value: wager}() (contracts/games/GameBase.sol#106)
+	Event emitted after the call(s):
+	- BetPlaced(id,msg.sender,wager,winMultBps) (contracts/games/GameBase.sol#122)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#reentrancy-vulnerabilities-4
+INFO:Detectors:
+Detector: timestamp
+GameBase.claimTimeoutRefund(uint256) (contracts/games/GameBase.sol#127-136) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(b.player == msg.sender,not your bet) (contracts/games/GameBase.sol#129)
+	- require(bool,string)(! b.settled,already settled) (contracts/games/GameBase.sol#130)
+	- require(bool,string)(block.timestamp >= uint256(b.placedAt) + SETTLE_TIMEOUT,too early) (contracts/games/GameBase.sol#131)
+GameBase.settle(uint256,bytes32) (contracts/games/GameBase.sol#138-149) uses timestamp for comparisons
+	Dangerous comparisons:
+	- require(bool,string)(b.player != address(0) && ! b.settled,bad bet) (contracts/games/GameBase.sol#140)
+	- require(bool,string)(ProvablyFair.verifyCommit(serverSeed,b.commit),seed/commit mismatch) (contracts/games/GameBase.sol#141)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#block-timestamp
+INFO:Detectors:
+Detector: low-level-calls
+Low level call in Bankroll.removeLiquidity(uint256,address) (contracts/core/Bankroll.sol#64-70):
+	- (ok,None) = address(to).call{value: amount}() (contracts/core/Bankroll.sol#67)
+Low level call in Bankroll.resolve(address,uint256,uint256) (contracts/core/Bankroll.sol#95-106):
+	- (ok,None) = address(player).call{value: payout}() (contracts/core/Bankroll.sol#102)
+Reference: https://github.com/crytic/slither/wiki/Detector-Documentation#low-level-calls
+INFO:Slither:. analyzed (9 contracts with 102 detectors), 7 result(s) found
