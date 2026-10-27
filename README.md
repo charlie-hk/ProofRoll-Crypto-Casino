@@ -2,6 +2,9 @@
 
 # ProofRoll — Crypto Casino
 
+**Live demo:** https://charlie-hk.github.io/ProofRoll-Crypto-Casino/ — plays dice and
+crash and runs the real provably-fair engine in your browser (no funds, no backend).
+
 A provably-fair casino built on an extensible on-chain core: a commit-reveal
 fairness engine, custody with per-bet exposure locking, a KYC/compliance gate,
 and a game registry that new games plug into without touching the core. Two

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>ProofRoll — Provably-Fair Crypto Casino</title>
+<meta name="description" content="ProofRoll — a provably-fair crypto casino. Dice and crash with commit-reveal fairness you can verify yourself." />
+<link rel="icon" type="image/svg+xml" href="favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="style.css" />
+<script defer src="keccak.js"></script>
+<script defer src="app.js"></script>
+</head>
+<body>
+<div class="ambient"></div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="logo-dot"></span>
+    <span class="brand-name">Proof<span class="brand-accent">Roll</span></span>
+    <span class="badge-demo" title="No real funds. The provably-fair engine runs in your browser.">DEMO</span>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button class="tab active" data-tab="dice">Dice</button>
+    <button class="tab" data-tab="crash">Crash</button>
+    <button class="tab" data-tab="verify">Verify</button>
+    <button class="tab" data-tab="how">How it works</button>
+  </nav>
+  <div class="balance">
+    <span class="balance-label">Balance</span>
+    <span class="balance-value" id="balance">1,000.00</span>
+    <button class="btn-ghost" id="resetBalance" title="Reset demo balance">↺</button>
+  </div>
+</header>
+
+<main class="stage">
+
+  <!-- DICE -->
+  <section class="panel active" id="panel-dice">
+    <div class="game">
+      <div class="game-view">
+        <div class="result-big" id="diceResult">—</div>
+        <div class="dice-track">
+          <div class="dice-fill" id="diceFill"></div>
+          <div class="dice-marker" id="diceMarker" style="left:50%"></div>
+          <div class="dice-pointer" id="dicePointer" style="left:0%"></div>
+        </div>
+        <div class="track-scale"><span>0</span><span>25</span><span>50</span><span>75</span><span>99.99</span></div>
+        <div class="outcome-line" id="diceOutcome"></div>
+      </div>
+
+      <div class="controls">
+        <div class="seg" id="diceDir">
+          <button class="seg-btn active" data-dir="under">Roll Under</button>
+          <button class="seg-btn" data-dir="over">Roll Over</button>
+        </div>
+
+        <label class="field">
+          <span>Target <b id="diceTargetLabel">50.00</b></span>
+          <input type="range" id="diceTarget" min="1" max="98" step="0.5" value="50" />
+        </label>
+
+        <div class="stats-row">
+          <div class="stat"><span>Win chance</span><b id="diceChance">50.00%</b></div>
+          <div class="stat"><span>Payout</span><b id="diceMult">1.98×</b></div>
+        </div>
+
+        <label class="field">
+          <span>Bet</span>
+          <div class="bet-input">
+            <input type="number" id="diceBet" value="10" min="0.01" step="1" />
+            <button data-amt="half">½</button>
+            <button data-amt="double">2×</button>
+            <button data-amt="max">Max</button>
+          </div>
+        </label>
+
+        <button class="btn-play" id="diceRoll">Roll Dice</button>
+      </div>
+    </div>
+    <div class="fair" id="diceFair"></div>
+  </section>
+
+  <!-- CRASH -->
+  <section class="panel" id="panel-crash">
+    <div class="game">
+      <div class="game-view">
+        <canvas id="crashCanvas" width="640" height="300"></canvas>
+        <div class="crash-mult" id="crashMult">1.00×</div>
+        <div class="outcome-line" id="crashOutcome"></div>
+      </div>
+      <div class="controls">
+        <label class="field">
+          <span>Auto cash-out <b id="crashCashLabel">2.00×</b></span>
+          <input type="range" id="crashCash" min="1.01" max="20" step="0.01" value="2" />
+        </label>
+        <div class="stats-row">
+          <div class="stat"><span>Win chance</span><b id="crashChance">~49.5%</b></div>
+          <div class="stat"><span>Payout</span><b id="crashPay">2.00×</b></div>
+        </div>
+        <label class="field">
+          <span>Bet</span>
+          <div class="bet-input">
+            <input type="number" id="crashBet" value="10" min="0.01" step="1" />
+            <button data-amt="half">½</button>
+            <button data-amt="double">2×</button>
+            <button data-amt="max">Max</button>
+          </div>
+        </label>
+        <button class="btn-play" id="crashLaunch">Launch</button>
+      </div>
+    </div>
+    <div class="fair" id="crashFair"></div>
+  </section>
+
+  <!-- VERIFY -->
+  <section class="panel" id="panel-verify">
+    <div class="verify-wrap">
+      <h2>Verify any round</h2>
+      <p class="muted">Paste a server seed, client seed and nonce and recompute the result yourself. This is the exact math the contracts and the backend use.</p>
+      <div class="verify-grid">
+        <label class="field"><span>Server seed (0x… 32 bytes)</span><input id="vServer" class="mono" placeholder="0x…" /></label>
+        <label class="field"><span>Client seed (0x… 32 bytes)</span><input id="vClient" class="mono" placeholder="0x…" /></label>
+        <label class="field"><span>Nonce</span><input id="vNonce" type="number" value="1" min="0" /></label>
+        <label class="field"><span>Game</span>
+          <select id="vGame"><option value="dice">Dice</option><option value="crash">Crash</option></select>
+        </label>
+      </div>
+      <button class="btn-play" id="vRun">Recompute</button>
+      <div class="verify-out mono" id="vOut">—</div>
+    </div>
+  </section>
+
+  <!-- HOW -->
+  <section class="panel" id="panel-how">
+    <div class="how-wrap">
+      <h2>Provably fair, in plain terms</h2>
+      <ol class="how-steps">
+        <li><b>Commit.</b> Before any bet, the house publishes <code>keccak256(serverSeed)</code>. The seed itself stays hidden, but it is now locked.</li>
+        <li><b>Your seed.</b> You choose a client seed. The house can't know outcomes without it, and you can't without the server seed.</li>
+        <li><b>Play.</b> Each bet gets a nonce. The result is a pure function of <code>(serverSeed, clientSeed, nonce)</code> — nothing else.</li>
+        <li><b>Reveal.</b> The server seed is revealed. You check it matches the earlier commit, then replay every result yourself on the Verify tab.</li>
+      </ol>
+      <p class="muted">This page runs that exact engine in your browser. In production the same logic lives in the Solidity contracts, settlement is driven by the operator, and funds sit in a bankroll with per-bet exposure locks and a timeout refund. Source and tests are on <a id="repoLink2" href="#" target="_blank" rel="noopener">GitHub</a>.</p>
+    </div>
+  </section>
+
+</main>
+
+<footer class="footer">
+  <span>ProofRoll — provably-fair crypto casino. Demo only, no real funds. Testnet contracts.</span>
+  <a id="repoLink" href="#" target="_blank" rel="noopener">View source on GitHub →</a>
+</footer>
+</body>
+</html>
