@@ -230,6 +230,11 @@ function animateCrash(bust, cashout, won, done) {
   const topMult = Math.max(peak * 1.15, 1.6);
   const dur = 420 + Math.min(1400, Math.log(peak) * 650);
   const t0 = performance.now();
+  // settlement must happen even if requestAnimationFrame is throttled
+  // (e.g. a background tab); whichever fires first wins.
+  let settled = false;
+  const finish = () => { if (settled) return; settled = true; done(); };
+  setTimeout(finish, dur + 1200);
   function frame(now) {
     const p = Math.min(1, (now - t0) / dur);
     const cur = 1 + (peak - 1) * easeOut(p);
@@ -264,7 +269,7 @@ function animateCrash(bust, cashout, won, done) {
       crashEl.mult.textContent = peak.toFixed(2) + "×";
       crashEl.mult.style.color = won ? "#3fb950" : "#ff5a5f";
       if (!won) shake(crashEl.canvas);
-      done();
+      finish();
     }
   }
   requestAnimationFrame(frame);
@@ -314,6 +319,7 @@ const short = (h) => (h && h.length > 20 ? h.slice(0, 10) + "…" + h.slice(-6) 
 /* ---------- tiny animations ---------- */
 function easeOut(p) { return 1 - Math.pow(1 - p, 3); }
 function animateNumber(el, to, dur) {
+  el.textContent = to.toFixed(2); // guaranteed value even if rAF is throttled
   const t0 = performance.now();
   function f(now) {
     const p = Math.min(1, (now - t0) / dur);
